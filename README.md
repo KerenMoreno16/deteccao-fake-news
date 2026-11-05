@@ -54,7 +54,7 @@ Os arquivos de dados **não estão incluídos** neste repositório.
 │└── models/ # LR, MLP, BiLSTM, BERT\
 │└── utils/ # Métricas, logging\
 └── run_all_experiments.py\
-└── requirements.txt\
+└── requirements.txt
 
 ---
 ## Requisitos
