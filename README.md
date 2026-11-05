@@ -35,32 +35,32 @@ Quatro experimentos são conduzidos:
 Os arquivos de dados **não estão incluídos** neste repositório. Consulte as instruções de download em `data/README.md`.
 ---
 ## Estrutura do repositório
-├── configs/
-│ └── experiment.yaml # Configuração central
-├── data/
-│ ├── raw/ # Datasets brutos
-│ └── embeddings/ # FastText .bin
-├── results/
-│ ├── metrics/ # JSONs por seed
-│ ├── models/ # Checkpoints
-│ └── predictions/ # Predições por seed
-├── latex/
-│ └── report_fragments/ # Tabelas e figuras
-├── scripts/ # Scripts auxiliares
-├── src/
-│└── data/ # Loaders e splits
-│└── experiments/ # Lógica por experimento
-│└── features/ # TF-IDF, embeddings
-│└── models/ # LR, MLP, BiLSTM, BERT
-│└── utils/ # Métricas, logging
-└── run_all_experiments.py
+├── configs/\
+│ └── experiment.yaml # Configuração central\
+├── data/\
+│ ├── raw/ # Datasets brutos\
+│ └── embeddings/ # FastText .bin\
+├── results/\
+│ ├── metrics/ # JSONs por seed\
+│ ├── models/ # Checkpoints\
+│ └── predictions/ # Predições por seed\
+├── latex/\
+│ └── report_fragments/ # Tabelas e figuras\
+├── scripts/ # Scripts auxiliares\
+├── src/\
+│└── data/ # Loaders e splits\
+│└── experiments/ # Lógica por experimento\
+│└── features/ # TF-IDF, embeddings\
+│└── models/ # LR, MLP, BiLSTM, BERT\
+│└── utils/ # Métricas, logging\
+└── run_all_experiments.py\
 ---
 ## Requisitos
 Python 3.10 ou superior.
 
-pip install -r requirements.txt
-Para suporte a GPU (opcional):
-pip install torch --index-url \
+pip install -r requirements.txt\
+Para suporte a GPU (opcional):\
+pip install torch --index-url
 
 Para carregar embeddings FastText `.bin`:
 pip install fasttext-wheel
@@ -70,7 +70,7 @@ Todos os experimentos usam 10 seeds (`42` a `51`). Os resultados reportados são
 
 ## Execução
 ### 1. Configurar ambiente
-cp configs/experiment.yaml configs/local.yaml
+cp configs/experiment.yaml configs/local.yaml\
 editar configs/local.yaml com caminhos locais
 
 ### 2. Executar todos os experimentos
@@ -87,7 +87,7 @@ python scripts/run_logger.py
 
 ---
 ## Resultados principais
-Os resultados completos estão em `results/metrics/` após execução.
+Os resultados completos estão em `results/metrics/` após execução.\
 Tabelas e figuras LaTeX são geradas em `latex/report_fragments/`.
 ---
 ## Limitações conhecidas
