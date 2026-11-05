@@ -32,7 +32,7 @@ Quatro experimentos são conduzidos:
 | CONSTRAINT-COVID19 | EN | 
 | PHEME | EN |
 
-Os arquivos de dados **não estão incluídos** neste repositório. Consulte as instruções de download em `data/README.md`.
+Os arquivos de dados **não estão incluídos** neste repositório.
 ---
 ## Estrutura do repositório
 ├── configs/\
