@@ -1,0 +1,255 @@
+# =============================================================================
+# Fake News — Monografia Keren — Experiment Configuration
+# Versão 5.0 — 6 datasets
+#
+# Datasets ativos:
+#   PT-BR: FakeTrue.Br | Fake.br | FakeRecogna
+#   EN:    FakeNewsNet-PolitiFact | CONSTRAINT-COVID19 | PHEME
+# =============================================================================
+general:
+  random_seed:        42
+  experiment_version: "5.0"
+  output_dir:         "results"
+  log_level:          "INFO"
+# ---------------------------------------------------------------------------
+# Datasets
+# ---------------------------------------------------------------------------
+datasets:
+  # ── Corpora em Português Brasileiro ──────────────────────────────────────
+  dataset_a:
+    name:             "FakeTrue.Br"
+    path:             "data/raw/faketruebr"
+    text_column:      "text"
+    label_column:     "label"
+    label_map:        {"fake": 1, "true": 0, "real": 0}
+    language:         "pt"
+    has_timestamp:    false
+  dataset_b:
+    name:             "Fake.br-Corpus"
+    path:             "data/raw/fakebr"
+  # text_column: loader usa detecção automática de
+  # colunas ["preprocessed_news", "text", "news"].
+  # Este valor é apenas documentação.
+    text_column:      "preprocessed_news"
+    label_column:     "label"
+    label_map:        {"fake": 1, "true": 0, "real": 0}
+    language:         "pt"
+    has_timestamp:    false
+  dataset_c:
+    name:             "FakeRecogna"
+    path:             "data/raw/fakerecogna"
+    text_column:      "Noticia"
+    label_column:     "Classe"
+    label_map:        {"fake": 1, "true": 0, "real": 0}
+    language:         "pt"
+    has_timestamp:    true
+    timestamp_column: "Data"
+  # ── Corpora em Inglês ─────────────────────────────────────────────────────
+  dataset_d:
+    name:             "FakeNewsNet-PolitiFact"
+    path:             "data/raw/fakenewsnet"
+    text_column:      "text"
+    label_column:     "label"
+    label_map:        {"fake": 1, "real": 0}
+    language:         "en"
+    # NOTA: o corpus em disco (1052 artigos) não possui datas de publicação
+    # na maioria dos registros — split temporal não aplicável.
+    has_timestamp:    false
+  dataset_e:
+    name:             "CONSTRAINT-COVID19"
+    path:             "data/raw/constraint_covid19"
+    text_column:      "tweet"
+    label_column:     "label"
+    label_map:        {"fake": 1, "real": 0, "true": 0, "false": 1}
+    language:         "en"
+    has_timestamp:    false
+  dataset_f:
+    name:             "PHEME"
+    path:             "data/raw/pheme"
+    text_column:      "text"
+    label_column:     "label"
+    label_map:        {"false": 1, "true": 0}
+    language:         "en"
+    has_timestamp:    true
+    timestamp_column: "created_at"
+    # NOTA (Issue #7): "as_fake" tratava ~95 % dos rumores não verificados
+    # como fake, gerando ~4005 real vs ~100 false após discard. Alterado para
+    # "discard" para evitar label noise severo; o desequilíbrio resultante
+    # deve ser registrado como limitação na monografia.
+    unverified_strategy: "discard"
+  # Chave lida por loaders.py via cfg["datasets"]["pheme"]
+  pheme:
+    unverified_strategy: "discard"
+# ---------------------------------------------------------------------------
+# Splitting
+# ---------------------------------------------------------------------------
+splitting:
+  test_size:            0.20
+  validation_size:      0.10
+  stratify:             true
+  temporal_train_ratio: 0.70
+  # Nota: o split temporal é controlado internamente pelo Experimento D
+  # via src/experiments/temporal.py — não é configurável aqui.
+# ---------------------------------------------------------------------------
+# Preprocessing
+# ---------------------------------------------------------------------------
+preprocessing:
+  lowercase:             true
+  remove_urls:           true
+  remove_mentions:       true
+  normalize_hashtags:    true    # mantém texto, remove apenas '#'
+  remove_emojis:         false   # manter para baseline do Experimento E
+  max_text_length_chars: 5000
+# ---------------------------------------------------------------------------
+# TF-IDF
+# ---------------------------------------------------------------------------
+tfidf:
+  max_features: 20000
+  ngram_range:  [1, 2]
+  sublinear_tf: true
+  min_df:       2
+  analyzer:     "word"
+# ---------------------------------------------------------------------------
+# Modelos
+# ---------------------------------------------------------------------------
+logistic_regression:
+  C:            1.0
+  solver:       "lbfgs"
+  class_weight: "balanced"
+  max_iter:     1000
+  param_grid:
+    clf__C:            [0.01, 0.1, 1.0, 10.0, 100.0]
+    clf__solver:       ["lbfgs", "liblinear"]
+    clf__class_weight: [null, "balanced"]
+mlp:
+  hidden_layer_sizes:  [256, 128]
+  activation:          "relu"
+  learning_rate_init:  0.001
+  max_iter:            200
+  early_stopping:      true
+  validation_fraction: 0.1
+  n_iter_no_change:    10
+  alpha:               0.0001
+  tfidf_max_features:  20000
+  param_grid:
+    clf__hidden_layer_sizes:
+      - [128]
+      - [256]
+      - [256, 128]
+    clf__activation:
+      - relu
+      - tanh
+    clf__learning_rate_init:
+      - 0.001
+      - 0.0001
+bilstm:
+  embedding_dim:           300
+  hidden_dim:              128
+  num_layers:              2
+  dropout:                 0.3
+  max_seq_len:             128
+  batch_size:              64
+  learning_rate:           0.001
+  max_epochs:              30
+  early_stopping_patience: 5
+  use_pretrained_embeddings: true
+  # FIX — caminhos com diretório explícito
+  fasttext:
+    pt: "data/embeddings/cc.pt.300.bin"
+    en: "data/embeddings/cc.en.300.bin"
+bertimbau:
+  # model_name selecionado automaticamente por idioma:
+  #   PT-BR -> neuralmind/bert-base-portuguese-cased
+  #   EN    -> bert-base-uncased
+  # O valor abaixo é usado apenas como fallback se o idioma não for detectado.
+  model_name:     "neuralmind/bert-base-portuguese-cased"
+  max_length:     128
+  batch_size:     32
+  learning_rate:  3.0e-5
+  weight_decay:   0.01
+  warmup_ratio:   0.1
+  epochs:         5
+  dropout:        0.1
+  gradient_clip:  1.0
+  # FIX #1 — fp16 desativado por padrão para compatibilidade máxima.
+  # Ativar apenas se GPU com compute capability >= 7.0
+  # (Volta/Turing/Ampere+).
+  fp16: false
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+evaluation:
+  primary_metric:       "f1_macro"
+  # Para datasets desbalanceados (ratio > 5:1), f1_macro pode ser enganoso:
+  # um classificador trivial que prediz sempre a classe majoritária obtém
+  # F1-macro = 0.5 (F1-real=1, F1-fake=0).  Nesses casos usar
+  # f1_weighted (pondera pelo suporte de cada classe) e pr_auc
+  # (área sob a curva Precisão-Recall, insensível ao desequilíbrio de
+  # negativos) como métricas primárias de reporte.
+  # PHEME (unverified_strategy=discard) apresenta ratio ~40:1 —
+  # reportar f1_macro apenas como referência; priorizar f1_weighted e pr_auc.
+  imbalanced_primary_metrics:
+    - "f1_weighted"
+    - "pr_auc"
+  imbalanced_datasets:
+    - "pheme"             # ratio ~40:1 após discard de não-verificados
+  imbalance_ratio_threshold: 5  # ratio mín. para acionar métricas alternativas
+  metrics:
+    - accuracy
+    - precision_macro
+    - recall_macro
+    - f1_macro
+    - f1_weighted
+    - pr_auc
+    - roc_auc
+    - mcc
+    - f1_real
+    - f1_fake
+  bootstrap_iterations: 1000
+  confidence_level:     0.95
+# ---------------------------------------------------------------------------
+# Statistical Tests
+# ---------------------------------------------------------------------------
+statistical_tests:
+  alpha: 0.05
+  # FIX #4 — removidos testes não implementados no dispatcher:
+  #   mcnemar     : requer predictions salvas
+  #   bootstrap_ci: calculado por run; não é teste entre modelos
+  tests:
+    - wilcoxon
+    - friedman
+    - nemenyi
+    - kruskal_wallis
+# ---------------------------------------------------------------------------
+# Explainability
+# ---------------------------------------------------------------------------
+explainability:
+  n_texts: 200   
+  num_examples_per_category: 10
+  lime_num_features:         20
+  lime_num_samples:          1000
+  shap_background_samples:   100
+  shap_n_explain:            50
+  shap_nsamples:             200
+  bert_shap_enabled:         false
+  bert_shap_n_samples:       5
+
+# ---------------------------------------------------------------------------
+# Robustness
+# ---------------------------------------------------------------------------
+robustness:
+  perturbations:
+    - remove_urls
+    - remove_hashtags
+    - remove_mentions
+    - remove_emojis
+    - remove_all_special
+    - alphanumeric_only
+    - truncate_20_tokens
+# ---------------------------------------------------------------------------
+# Report
+# ---------------------------------------------------------------------------
+report:
+  output_dir: "latex/report_fragments"
+  author:     "Keren Moreno"
+  language:   "pt"
