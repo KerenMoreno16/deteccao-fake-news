@@ -1,7 +1,7 @@
-# Fake News Detection - Monografia
-Repositório de código da monografia - Um Estudo Comparativo de Arquiteturas de Classificação de Texto para Detecção de Fake News em Português e em Inglês.
-**Autora:** Keren Suzana B. M. Segura
-**Instituição:** Escola Politécnica da Universidade de São Paulo 
+# Fake News Detection - Monografia/
+Repositório de código da monografia - Um Estudo Comparativo de Arquiteturas de Classificação de Texto para Detecção de Fake News em Português e em Inglês./
+**Autora:** Keren Suzana B. M. Segura/
+**Instituição:** Escola Politécnica da Universidade de São Paulo/
 **Ano:** 2026
 ---
 ## Visão geral
